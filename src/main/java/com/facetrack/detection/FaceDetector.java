@@ -38,6 +38,17 @@ public class FaceDetector {
         printErrorMessage();
     }
 
+    private boolean loadFromPath(String path, String source)
+    {
+        boolean res = false;
+        String msg = null;
+
+        CascadeClassifier faceClassifier = new CascadeClassifier(path);
+        loaded = !faceClassifier.empty();
+        res = loaded;
+        return res;
+    }
+
     private void printErrorMessage()
     {
         System.err.println("Téléchargez le file de Haar (abe) et mettez le dans src/main/resources/");
