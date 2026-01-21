@@ -29,7 +29,7 @@ public class FaceDetector {
 
     private void loadClassifier()
     {
-        boolean resResources;
+        boolean resResources = tryLoadFromResources();
         boolean resEnvPath;
         boolean resSystemPaths;
 
@@ -46,6 +46,35 @@ public class FaceDetector {
         CascadeClassifier faceClassifier = new CascadeClassifier(path);
         loaded = !faceClassifier.empty();
         res = loaded;
+        return res;
+    }
+
+    private boolean tryLoadFromResources()
+    {
+        boolean res = false;
+        InputStream is = null;
+        File tempFile = null;
+        FileOutputStream fos = null;
+        byte[] buffer = null;
+        int bytesRead = 0;
+
+        is = getClass().getResourceAsStream("/" + CASCADE_FILE);
+        if (is == null)
+            is = getClass().getClassLoader().getResourceAsStream(CASCADE_FILE);
+        if (is == null)
+            return res;
+        tempFile = File.createTempFile("haarcascade_frontalface", ".xml");
+        tempFile.deleteOnExit();
+        fos = new FileOutputStream(tempFile);
+        buffer = new byte[4096];
+        bytesRead = is.read(buffer);
+        while (bytesRead != -1) {
+            fos.write(buffer, 0, bytesRead);
+            bytesRead = is.read(buffer);
+        }
+        fos.close();
+        is.close();
+        res = loadFromPath(tempFile.getAbsolutePath(), "ressources");
         return res;
     }
 
