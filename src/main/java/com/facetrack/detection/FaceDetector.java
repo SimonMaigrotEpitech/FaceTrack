@@ -30,10 +30,8 @@ public class FaceDetector {
     private void loadClassifier()
     {
         boolean resResources = tryLoadFromResources();
-        boolean resEnvPath;
-        boolean resSystemPaths;
 
-        if (resResources || resEnvPath ||  resSystemPaths)
+        if (resResources)
             return;
         printErrorMessage();
     }
