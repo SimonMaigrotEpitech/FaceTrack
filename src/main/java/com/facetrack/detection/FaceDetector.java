@@ -39,9 +39,8 @@ public class FaceDetector {
     private boolean loadFromPath(String path, String source)
     {
         boolean res = false;
-        String msg = null;
 
-        CascadeClassifier faceClassifier = new CascadeClassifier(path);
+        this.faceClassifier = new CascadeClassifier(path);
         loaded = !faceClassifier.empty();
         res = loaded;
         return res;
@@ -61,18 +60,22 @@ public class FaceDetector {
             is = getClass().getClassLoader().getResourceAsStream(CASCADE_FILE);
         if (is == null)
             return res;
-        tempFile = File.createTempFile("haarcascade_frontalface", ".xml");
-        tempFile.deleteOnExit();
-        fos = new FileOutputStream(tempFile);
-        buffer = new byte[4096];
-        bytesRead = is.read(buffer);
-        while (bytesRead != -1) {
-            fos.write(buffer, 0, bytesRead);
+        try {
+            tempFile = File.createTempFile("haarcascade_frontalface", ".xml");
+            tempFile.deleteOnExit();
+            fos = new FileOutputStream(tempFile);
+            buffer = new byte[4096];
             bytesRead = is.read(buffer);
+            while (bytesRead != -1) {
+                fos.write(buffer, 0, bytesRead);
+                bytesRead = is.read(buffer);
+            }
+            fos.close();
+            is.close();
+            res = loadFromPath(tempFile.getAbsolutePath(), "ressources");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        fos.close();
-        is.close();
-        res = loadFromPath(tempFile.getAbsolutePath(), "ressources");
         return res;
     }
 
@@ -84,5 +87,26 @@ public class FaceDetector {
     public boolean isLoaded()
     {
         return loaded;
+    }
+
+    public int detectAndDraw(Mat frame)
+    {
+        if (!loaded || faceClassifier == null)
+            return 0;
+
+        MatOfRect faces = new MatOfRect();
+        Mat grayFrame = new Mat();
+
+        Imgproc.cvtColor(frame, grayFrame, Imgproc.COLOR_BGR2GRAY);
+        Imgproc.equalizeHist(grayFrame, grayFrame);
+
+        faceClassifier.detectMultiScale(grayFrame, faces);
+
+        Rect[] facesArray = faces.toArray();
+        for (Rect face : facesArray) {
+            Imgproc.rectangle(frame, face.tl(), face.br(), RECT_COLOR, RECT_THICKNESS);
+        }
+
+        return facesArray.length;
     }
 }
