@@ -12,8 +12,12 @@ import org.opencv.core.MatOfByte;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.videoio.VideoCapture;
 
+import com.facetrack.detection.FaceDetector;
+
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -24,16 +28,29 @@ import java.util.Date;
 public class Camera extends JFrame {
 
     private JLabel cameraScreen;
+    private JLabel faceCountLabel;
     private JButton btnCapture;
     private VideoCapture capture;
     private Mat frame;
     private boolean clicked = false;
+    private FaceDetector faceDetector;
 
     public Camera() {
         setLayout(null);
+
+        faceDetector = new FaceDetector();
+
         cameraScreen = new JLabel();
-        cameraScreen.setBounds(0, 0, 640, 560);
+        cameraScreen.setBounds(0, 0, 1920, 1080);
         add(cameraScreen);
+
+        faceCountLabel = new JLabel("nb visages: 0");
+        faceCountLabel.setBounds(10, 10, 200, 30);
+        faceCountLabel.setForeground(Color.GREEN);
+        faceCountLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        faceCountLabel.setOpaque(true);
+        faceCountLabel.setBackground(new Color(0, 0, 0, 150));
+        add(faceCountLabel);
 
         btnCapture = new JButton("Capture");
         btnCapture.setBounds(300, 480, 80, 40);
@@ -58,7 +75,7 @@ public class Camera extends JFrame {
 
         setTitle("Camera");
         setLocationRelativeTo(null);
-        setSize(new Dimension(640, 560));
+        setSize(new Dimension(1920, 1080));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
     }
@@ -72,9 +89,17 @@ public class Camera extends JFrame {
         while (true) {
             if (capture.isOpened()) {
                 capture.read(frame);
-                final MatOfByte buf = new MatOfByte();
-                Imgcodecs.imencode(".jpg", frame, buf);
 
+                int faceCount = faceDetector.detectAndDraw(frame);
+
+                int count = faceCount;
+                javax.swing.SwingUtilities.invokeLater(() -> {
+                    faceCountLabel.setText("visages: " + count);
+                });
+
+                MatOfByte buf = new MatOfByte();
+                Imgcodecs.imencode(".jpg", frame, buf);
+q
                 imageData = buf.toArray();
 
                 icon = new ImageIcon(imageData);
