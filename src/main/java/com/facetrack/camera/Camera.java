@@ -99,7 +99,7 @@ public class Camera extends JFrame {
 
                 MatOfByte buf = new MatOfByte();
                 Imgcodecs.imencode(".jpg", frame, buf);
-q
+
                 imageData = buf.toArray();
 
                 icon = new ImageIcon(imageData);
