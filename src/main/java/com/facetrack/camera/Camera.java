@@ -35,6 +35,7 @@ public class Camera extends JFrame {
     private Mat frame;
     private boolean clicked = false;
     private FaceDetector faceDetector;
+    private long lastFrameTime = System.currentTimeMillis();
 
     public Camera() {
         setLayout(null);
@@ -101,9 +102,17 @@ public class Camera extends JFrame {
 
                 int faceCount = faceDetector.detectAndDraw(frame);
 
+                long currentTime = System.currentTimeMillis();
+                long elapsed = currentTime - lastFrameTime;
+                lastFrameTime = currentTime;
+                int fps = 0;
+                if (elapsed > 0)
+                    fps = (int) (1000 / elapsed);
+
                 int count = faceCount;
                 javax.swing.SwingUtilities.invokeLater(() -> {
                     faceCountLabel.setText("visages: " + count);
+                    fpsLabel.setText("FPS: " + fps);
                 });
 
                 MatOfByte buf = new MatOfByte();
