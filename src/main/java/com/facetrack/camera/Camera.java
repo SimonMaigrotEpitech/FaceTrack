@@ -91,6 +91,19 @@ public class Camera extends JFrame {
             }
         });
 
+        JButton btnQuit = new JButton("Quitter");
+        btnQuit.setBounds(390, 480, 80, 40);
+        add(btnQuit);
+
+        btnQuit.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                capture.release();
+                frame.release();
+                System.exit(0);
+            }
+        });
+
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
