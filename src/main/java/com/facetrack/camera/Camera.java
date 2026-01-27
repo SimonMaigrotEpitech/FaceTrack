@@ -4,6 +4,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
 
 import org.opencv.core.Core;
@@ -27,6 +28,7 @@ import java.util.Date;
 
 public class Camera extends JFrame {
 
+    private JLayeredPane layeredPane;
     private JLabel cameraScreen;
     private JLabel faceCountLabel;
     private JLabel fpsLabel;
@@ -36,17 +38,20 @@ public class Camera extends JFrame {
     private VideoCapture capture;
     private Mat frame;
     private boolean clicked = false;
+    private boolean detectionEnabled = true;
     private FaceDetector faceDetector;
     private long lastFrameTime = System.currentTimeMillis();
 
     public Camera() {
-        setLayout(null);
-
         faceDetector = new FaceDetector();
+
+        layeredPane = new JLayeredPane();
+        layeredPane.setPreferredSize(new Dimension(1920, 1080));
+        setContentPane(layeredPane);
 
         cameraScreen = new JLabel();
         cameraScreen.setBounds(0, 0, 1920, 1080);
-        add(cameraScreen);
+        layeredPane.add(cameraScreen, JLayeredPane.DEFAULT_LAYER);
 
         faceCountLabel = new JLabel("nb visages: 0");
         faceCountLabel.setBounds(10, 10, 200, 30);
@@ -54,7 +59,7 @@ public class Camera extends JFrame {
         faceCountLabel.setFont(new Font("Arial", Font.BOLD, 18));
         faceCountLabel.setOpaque(true);
         faceCountLabel.setBackground(new Color(0, 0, 0, 150));
-        add(faceCountLabel);
+        layeredPane.add(faceCountLabel, JLayeredPane.PALETTE_LAYER);
 
         fpsLabel = new JLabel("FPS: 0");
         fpsLabel.setBounds(10, 45, 100, 30);
@@ -62,7 +67,7 @@ public class Camera extends JFrame {
         fpsLabel.setFont(new Font("Arial", Font.BOLD, 18));
         fpsLabel.setOpaque(true);
         fpsLabel.setBackground(new Color(0, 0, 0, 150));
-        add(fpsLabel);
+        layeredPane.add(fpsLabel, JLayeredPane.PALETTE_LAYER);
 
         resolutionLabel = new JLabel("Resolution: -");
         resolutionLabel.setBounds(10, 80, 200, 30);
@@ -70,7 +75,7 @@ public class Camera extends JFrame {
         resolutionLabel.setFont(new Font("Arial", Font.BOLD, 18));
         resolutionLabel.setOpaque(true);
         resolutionLabel.setBackground(new Color(0, 0, 0, 150));
-        add(resolutionLabel);
+        layeredPane.add(resolutionLabel, JLayeredPane.PALETTE_LAYER);
 
         statusLabel = new JLabel("Camera: stopped");
         statusLabel.setBounds(10, 115, 200, 30);
@@ -78,11 +83,11 @@ public class Camera extends JFrame {
         statusLabel.setFont(new Font("Arial", Font.BOLD, 18));
         statusLabel.setOpaque(true);
         statusLabel.setBackground(new Color(0, 0, 0, 150));
-        add(statusLabel);
+        layeredPane.add(statusLabel, JLayeredPane.PALETTE_LAYER);
 
         btnCapture = new JButton("Capture");
-        btnCapture.setBounds(300, 480, 80, 40);
-        add(btnCapture);
+        btnCapture.setBounds(10, 160, 100, 30);
+        layeredPane.add(btnCapture, JLayeredPane.PALETTE_LAYER);
 
         btnCapture.addActionListener(new ActionListener() {
             @Override
@@ -92,8 +97,8 @@ public class Camera extends JFrame {
         });
 
         JButton btnQuit = new JButton("Quitter");
-        btnQuit.setBounds(390, 480, 80, 40);
-        add(btnQuit);
+        btnQuit.setBounds(120, 160, 100, 30);
+        layeredPane.add(btnQuit, JLayeredPane.PALETTE_LAYER);
 
         btnQuit.addActionListener(new ActionListener() {
             @Override
@@ -101,6 +106,22 @@ public class Camera extends JFrame {
                 capture.release();
                 frame.release();
                 System.exit(0);
+            }
+        });
+
+        JButton btnDetection = new JButton("Detection: ON");
+        btnDetection.setBounds(10, 200, 130, 30);
+        layeredPane.add(btnDetection, JLayeredPane.PALETTE_LAYER);
+
+        btnDetection.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                detectionEnabled = !detectionEnabled;
+                if (detectionEnabled) {
+                    btnDetection.setText("Detection: ON");
+                } else {
+                    btnDetection.setText("Detection: OFF");
+                }
             }
         });
 
@@ -131,7 +152,10 @@ public class Camera extends JFrame {
             if (capture.isOpened()) {
                 capture.read(frame);
 
-                int faceCount = faceDetector.detectAndDraw(frame);
+                int faceCount = 0;
+                if (detectionEnabled) {
+                    faceCount = faceDetector.detectAndDraw(frame);
+                }
 
                 long currentTime = System.currentTimeMillis();
                 long elapsed = currentTime - lastFrameTime;
