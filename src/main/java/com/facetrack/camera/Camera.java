@@ -31,6 +31,7 @@ public class Camera extends JFrame {
     private JLabel faceCountLabel;
     private JLabel fpsLabel;
     private JLabel resolutionLabel;
+    private JLabel statusLabel;
     private JButton btnCapture;
     private VideoCapture capture;
     private Mat frame;
@@ -70,6 +71,14 @@ public class Camera extends JFrame {
         resolutionLabel.setOpaque(true);
         resolutionLabel.setBackground(new Color(0, 0, 0, 150));
         add(resolutionLabel);
+
+        statusLabel = new JLabel("Camera: stopped");
+        statusLabel.setBounds(10, 115, 200, 30);
+        statusLabel.setForeground(Color.ORANGE);
+        statusLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        statusLabel.setOpaque(true);
+        statusLabel.setBackground(new Color(0, 0, 0, 150));
+        add(statusLabel);
 
         btnCapture = new JButton("Capture");
         btnCapture.setBounds(300, 480, 80, 40);
@@ -126,6 +135,8 @@ public class Camera extends JFrame {
                     faceCountLabel.setText("visages: " + count);
                     fpsLabel.setText("FPS: " + currentFps);
                     resolutionLabel.setText("Resolution: " + width + "x" + height);
+                    statusLabel.setText("Camera: active");
+                    statusLabel.setForeground(Color.GREEN);
                 });
 
                 MatOfByte buf = new MatOfByte();
