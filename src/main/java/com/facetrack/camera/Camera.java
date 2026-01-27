@@ -120,9 +120,12 @@ public class Camera extends JFrame {
 
                 int count = faceCount;
                 int currentFps = fps;
+                int width = frame.width();
+                int height = frame.height();
                 javax.swing.SwingUtilities.invokeLater(() -> {
                     faceCountLabel.setText("visages: " + count);
                     fpsLabel.setText("FPS: " + currentFps);
+                    resolutionLabel.setText("Resolution: " + width + "x" + height);
                 });
 
                 MatOfByte buf = new MatOfByte();
