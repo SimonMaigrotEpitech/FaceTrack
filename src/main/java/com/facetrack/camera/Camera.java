@@ -29,6 +29,7 @@ public class Camera extends JFrame {
 
     private JLabel cameraScreen;
     private JLabel faceCountLabel;
+    private JLabel fpsLabel;
     private JButton btnCapture;
     private VideoCapture capture;
     private Mat frame;
@@ -51,6 +52,14 @@ public class Camera extends JFrame {
         faceCountLabel.setOpaque(true);
         faceCountLabel.setBackground(new Color(0, 0, 0, 150));
         add(faceCountLabel);
+
+        fpsLabel = new JLabel("FPS: 0");
+        fpsLabel.setBounds(10, 45, 100, 30);
+        fpsLabel.setForeground(Color.GREEN);
+        fpsLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        fpsLabel.setOpaque(true);
+        fpsLabel.setBackground(new Color(0, 0, 0, 150));
+        add(fpsLabel);
 
         btnCapture = new JButton("Capture");
         btnCapture.setBounds(300, 480, 80, 40);
