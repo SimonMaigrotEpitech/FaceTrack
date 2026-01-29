@@ -2,6 +2,7 @@ package com.facetrack.camera;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
@@ -12,6 +13,7 @@ import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.videoio.VideoCapture;
+import org.opencv.videoio.Videoio;
 
 import com.facetrack.detection.FaceDetector;
 
@@ -40,6 +42,9 @@ public class Camera extends JFrame {
     private boolean clicked = false;
     private boolean detectionEnabled = true;
     private FaceDetector faceDetector;
+    private JComboBox<String> resolutionCombo;
+    private int selectedWidth = 640;
+    private int selectedHeight = 480;
     private long lastFrameTime = System.currentTimeMillis();
 
     public Camera() {
@@ -151,11 +156,12 @@ public class Camera extends JFrame {
         while (true) {
             if (capture.isOpened()) {
                 capture.read(frame);
+                if (frame.empty())
+                    continue;
 
                 int faceCount = 0;
-                if (detectionEnabled) {
+                if (detectionEnabled)
                     faceCount = faceDetector.detectAndDraw(frame);
-                }
 
                 long currentTime = System.currentTimeMillis();
                 long elapsed = currentTime - lastFrameTime;
