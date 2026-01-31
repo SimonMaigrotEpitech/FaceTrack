@@ -130,6 +130,27 @@ public class Camera extends JFrame {
             }
         });
 
+        String[] resolutions = {"640x480", "1920x1080"};
+        resolutionCombo = new JComboBox<>(resolutions);
+        resolutionCombo.setBounds(10, 240, 120, 30);
+        layeredPane.add(resolutionCombo, JLayeredPane.PALETTE_LAYER);
+
+        resolutionCombo.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String selected = (String) resolutionCombo.getSelectedItem();
+                String[] parts = selected.split("x");
+                selectedWidth = Integer.parseInt(parts[0]);
+                selectedHeight = Integer.parseInt(parts[1]);
+                if (capture != null && capture.isOpened()) {
+                    capture.release();
+                    capture.open(0);
+                    capture.set(Videoio.CAP_PROP_FRAME_WIDTH, selectedWidth);
+                    capture.set(Videoio.CAP_PROP_FRAME_HEIGHT, selectedHeight);
+                }
+            }
+        });
+
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
