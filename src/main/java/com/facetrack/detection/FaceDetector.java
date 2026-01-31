@@ -21,6 +21,7 @@ public class FaceDetector {
     private Scalar RECT_COLOR = new Scalar(0, 255, 0);
     private int RECT_THICKNESS = 2;
     private String CASCADE_FILE = "haarcascade_frontalface_default.xml";
+    private int minNeighbors = 3;
 
     public FaceDetector()
     {
@@ -89,6 +90,11 @@ public class FaceDetector {
         return loaded;
     }
 
+    public void setMinNeighbors(int minNeighborss)
+    {
+        this.minNeighbors = minNeighborss;
+    }
+
     public int detectAndDraw(Mat frame)
     {
         if (!loaded || faceClassifier == null)
@@ -100,7 +106,7 @@ public class FaceDetector {
         Imgproc.cvtColor(frame, grayFrame, Imgproc.COLOR_BGR2GRAY);
         Imgproc.equalizeHist(grayFrame, grayFrame);
 
-        faceClassifier.detectMultiScale(grayFrame, faces);
+        faceClassifier.detectMultiScale(grayFrame, faces, 1.1, minNeighbors);
 
         Rect[] facesArray = faces.toArray();
         for (Rect face : facesArray) {
