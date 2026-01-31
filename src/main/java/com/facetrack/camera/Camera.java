@@ -7,7 +7,9 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 import javax.swing.JSlider;
+import javax.swing.JTextArea;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -47,6 +49,7 @@ public class Camera extends JFrame {
     private int selectedWidth = 640;
     private int selectedHeight = 480;
     private int selectedCamera = 0;
+    private JTextArea logArea;
     private long lastFrameTime = System.currentTimeMillis();
 
     public Camera() {
@@ -126,8 +129,10 @@ public class Camera extends JFrame {
                 detectionEnabled = !detectionEnabled;
                 if (detectionEnabled) {
                     btnDetection.setText("Detection: ON");
+                    addLog("ca detecte");
                 } else {
                     btnDetection.setText("Detection: OFF");
+                    addLog("ca detecte plus");
                 }
             }
         });
@@ -190,9 +195,31 @@ public class Camera extends JFrame {
                 if (capture != null && capture.isOpened()) {
                     capture.release();
                     capture.open(selectedCamera);
+                    addLog("Camera changee: " + selectedCamera);
                 }
             }
         });
+
+        JLabel logLabel = new JLabel("Logs:");
+        logLabel.setBounds(10, 400, 80, 20);
+        logLabel.setForeground(Color.WHITE);
+        logLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        layeredPane.add(logLabel, JLayeredPane.PALETTE_LAYER);
+
+        logArea = new JTextArea();
+        logArea.setEditable(false);
+        logArea.setBackground(new Color(0, 0, 0, 200));
+        logArea.setForeground(Color.GREEN);
+        logArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        JScrollPane scrollPane = new JScrollPane(logArea);
+        scrollPane.setBounds(10, 420, 250, 150);
+        layeredPane.add(scrollPane, JLayeredPane.PALETTE_LAYER);
+
+        addLog("application demarree");
+        if (faceDetector.isLoaded())
+            addLog("OpenCV charge");
+        else
+            addLog("erreur: OpenCV pas charge");
 
         addWindowListener(new WindowAdapter() {
             @Override
@@ -215,6 +242,7 @@ public class Camera extends JFrame {
         capture = new VideoCapture(selectedCamera);
         frame = new Mat();
         byte[] imageData;
+        addLog("demarrage de la caméra " + selectedCamera);
 
         ImageIcon icon;
         while (true) {
@@ -265,6 +293,16 @@ public class Camera extends JFrame {
                     clicked = false;
                 }
             }
+        }
+    }
+
+    private void addLog(String message) {
+        String timestamp = new SimpleDateFormat("HH:mm:ss").format(new Date());
+        String log = "[" + timestamp + "] " + message + "\n";
+        System.out.println(log);
+        if (logArea != null) {
+            logArea.append(log);
+            logArea.setCaretPosition(logArea.getDocument().getLength());
         }
     }
 
