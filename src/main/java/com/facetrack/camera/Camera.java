@@ -46,6 +46,7 @@ public class Camera extends JFrame {
     private JComboBox<String> resolutionCombo;
     private int selectedWidth = 640;
     private int selectedHeight = 480;
+    private int selectedCamera = 0;
     private long lastFrameTime = System.currentTimeMillis();
 
     public Camera() {
@@ -171,6 +172,28 @@ public class Camera extends JFrame {
             }
         });
 
+        JLabel cameraLabel = new JLabel("Camera:");
+        cameraLabel.setBounds(10, 340, 80, 20);
+        cameraLabel.setForeground(Color.WHITE);
+        cameraLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        layeredPane.add(cameraLabel, JLayeredPane.PALETTE_LAYER);
+
+        String[] cameras = {"Camera 0", "Camera 1", "Camera 2"};
+        JComboBox<String> cameraCombo = new JComboBox<>(cameras);
+        cameraCombo.setBounds(10, 360, 100, 30);
+        layeredPane.add(cameraCombo, JLayeredPane.PALETTE_LAYER);
+
+        cameraCombo.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                selectedCamera = cameraCombo.getSelectedIndex();
+                if (capture != null && capture.isOpened()) {
+                    capture.release();
+                    capture.open(selectedCamera);
+                }
+            }
+        });
+
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -189,7 +212,7 @@ public class Camera extends JFrame {
     }
 
     public void startCamera() {
-        capture = new VideoCapture(0);
+        capture = new VideoCapture(selectedCamera);
         frame = new Mat();
         byte[] imageData;
 
