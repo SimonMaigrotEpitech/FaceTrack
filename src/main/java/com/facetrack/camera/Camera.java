@@ -7,6 +7,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
+import javax.swing.JSlider;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -150,6 +151,16 @@ public class Camera extends JFrame {
                 }
             }
         });
+
+        JLabel sensitivityLabel = new JLabel("Sensibilite: 3");
+        sensitivityLabel.setBounds(10, 280, 120, 20);
+        sensitivityLabel.setForeground(Color.WHITE);
+        sensitivityLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        layeredPane.add(sensitivityLabel, JLayeredPane.PALETTE_LAYER);
+
+        JSlider sensitivitySlider = new JSlider(1, 10, 3);
+        sensitivitySlider.setBounds(10, 300, 150, 30);
+        layeredPane.add(sensitivitySlider, JLayeredPane.PALETTE_LAYER);
 
         addWindowListener(new WindowAdapter() {
             @Override
