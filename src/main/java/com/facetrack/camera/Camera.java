@@ -162,6 +162,15 @@ public class Camera extends JFrame {
         sensitivitySlider.setBounds(10, 300, 150, 30);
         layeredPane.add(sensitivitySlider, JLayeredPane.PALETTE_LAYER);
 
+        sensitivitySlider.addChangeListener(new javax.swing.event.ChangeListener() {
+            @Override
+            public void stateChanged(javax.swing.event.ChangeEvent e) {
+                int value = sensitivitySlider.getValue();
+                sensitivityLabel.setText("Sensibilite: " + value);
+                faceDetector.setMinNeighbors(value);
+            }
+        });
+
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
