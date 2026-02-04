@@ -22,4 +22,34 @@ public class MultiDetector {
         smileClassifier = new CascadeClassifier("src/main/resources/haarcascade_smile.xml");
         profileClassifier = new CascadeClassifier("src/main/resources/haarcascade_profileface.xml");
     }
+
+    public void setEyeEnabled(boolean enabled)
+    {
+        this.eyeEnabled = enabled;
+    }
+
+    public void setSmileEnabled(boolean enabled)
+    {
+        this.smileEnabled = enabled;
+    }
+
+    public void setProfileEnabled(boolean enabled)
+    {
+        this.profileEnabled = enabled;
+    }
+
+    public int getEyeCount()
+    {
+        return eyeCount;
+    }
+
+    public int getSmileCount()
+    {
+        return smileCount;
+    }
+
+    public int getProfileCount()
+    {
+        return profileCount;
+    }
 }
