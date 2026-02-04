@@ -38,6 +38,9 @@ public class Camera extends JFrame {
     private JLayeredPane layeredPane;
     private JLabel cameraScreen;
     private JLabel faceCountLabel;
+    private JLabel eyeCountLabel;
+    private JLabel smileCountLabel;
+    private JLabel profileCountLabel;
     private JLabel fpsLabel;
     private JLabel resolutionLabel;
     private JLabel statusLabel;
@@ -74,6 +77,30 @@ public class Camera extends JFrame {
         faceCountLabel.setOpaque(true);
         faceCountLabel.setBackground(new Color(0, 0, 0, 150));
         layeredPane.add(faceCountLabel, JLayeredPane.PALETTE_LAYER);
+
+        eyeCountLabel = new JLabel("yeux: 0");
+        eyeCountLabel.setBounds(220, 10, 150, 25);
+        eyeCountLabel.setForeground(new Color(100, 100, 255));
+        eyeCountLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        eyeCountLabel.setOpaque(true);
+        eyeCountLabel.setBackground(new Color(0, 0, 0, 150));
+        layeredPane.add(eyeCountLabel, JLayeredPane.PALETTE_LAYER);
+
+        smileCountLabel = new JLabel("sourires: 0");
+        smileCountLabel.setBounds(220, 38, 150, 25);
+        smileCountLabel.setForeground(Color.YELLOW);
+        smileCountLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        smileCountLabel.setOpaque(true);
+        smileCountLabel.setBackground(new Color(0, 0, 0, 150));
+        layeredPane.add(smileCountLabel, JLayeredPane.PALETTE_LAYER);
+
+        profileCountLabel = new JLabel("profils: 0");
+        profileCountLabel.setBounds(220, 66, 150, 25);
+        profileCountLabel.setForeground(Color.ORANGE);
+        profileCountLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        profileCountLabel.setOpaque(true);
+        profileCountLabel.setBackground(new Color(0, 0, 0, 150));
+        layeredPane.add(profileCountLabel, JLayeredPane.PALETTE_LAYER);
 
         fpsLabel = new JLabel("FPS: 0");
         fpsLabel.setBounds(10, 45, 100, 30);
@@ -316,8 +343,14 @@ public class Camera extends JFrame {
                 int currentFps = fps;
                 int width = frame.width();
                 int height = frame.height();
+                int eyes = multiDetector.getEyeCount();
+                int smiles = multiDetector.getSmileCount();
+                int profiles = multiDetector.getProfileCount();
                 javax.swing.SwingUtilities.invokeLater(() -> {
                     faceCountLabel.setText("visages: " + count);
+                    eyeCountLabel.setText("yeux: " + eyes);
+                    smileCountLabel.setText("sourires: " + smiles);
+                    profileCountLabel.setText("profils: " + profiles);
                     fpsLabel.setText("FPS: " + currentFps);
                     resolutionLabel.setText("Resolution: " + width + "x" + height);
                     statusLabel.setText("Camera: active");
