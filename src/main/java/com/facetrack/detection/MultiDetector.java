@@ -1,5 +1,10 @@
 package com.facetrack.detection;
 
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfRect;
+import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
 
 public class MultiDetector {
@@ -50,6 +55,41 @@ public class MultiDetector {
 
     public int getProfileCount()
     {
+        return profileCount;
+    }
+
+    public void detectEyes(Mat frame, Rect[] faces)
+    {
+        eyeCount = 0;
+        Mat grayFrame = new Mat();
+        Mat faceROI;
+        MatOfRect eyes = new MatOfRect();
+        Rect[] eyesArray;
+        Scalar blueColor = new Scalar(255, 0, 0);
+        Rect eyeRect;
+    }
+
+    public void detectSmiles(Mat frame, Rect[] faces)
+    {
+        smileCount = 0;
+        Mat grayFrame = new Mat();
+        Mat faceROI;
+        MatOfRect smiles = new MatOfRect();
+        Rect[] smilesArray;
+        Scalar yellowColor = new Scalar(0, 255, 255);
+        Rect smileRect;
+    }
+
+    public int detectProfiles(Mat frame)
+    {
+        profileCount = 0;
+        Mat grayFrame = new Mat();
+        MatOfRect profiles = new MatOfRect();
+        Rect[] profilesArray;
+        Scalar orangeColor = new Scalar(0, 165, 255);
+
+        if (!profileEnabled)
+            return 0;
         return profileCount;
     }
 }
