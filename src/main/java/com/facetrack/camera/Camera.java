@@ -19,6 +19,7 @@ import org.opencv.videoio.VideoCapture;
 import org.opencv.videoio.Videoio;
 
 import com.facetrack.detection.FaceDetector;
+import com.facetrack.detection.MultiDetector;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -45,6 +46,7 @@ public class Camera extends JFrame {
     private boolean clicked = false;
     private boolean detectionEnabled = true;
     private FaceDetector faceDetector;
+    private MultiDetector multiDetector;
     private JComboBox<String> resolutionCombo;
     private int selectedWidth = 640;
     private int selectedHeight = 480;
@@ -54,6 +56,7 @@ public class Camera extends JFrame {
 
     public Camera() {
         faceDetector = new FaceDetector();
+        multiDetector = new MultiDetector();
 
         layeredPane = new JLayeredPane();
         layeredPane.setPreferredSize(new Dimension(1920, 1080));
@@ -252,8 +255,12 @@ public class Camera extends JFrame {
                     continue;
 
                 int faceCount = 0;
-                if (detectionEnabled)
+                if (detectionEnabled) {
                     faceCount = faceDetector.detectAndDraw(frame);
+                    multiDetector.detectEyes(frame, faceDetector.getLastDetectedFaces());
+                    multiDetector.detectSmiles(frame, faceDetector.getLastDetectedFaces());
+                    multiDetector.detectProfiles(frame);
+                }
 
                 long currentTime = System.currentTimeMillis();
                 long elapsed = currentTime - lastFrameTime;
