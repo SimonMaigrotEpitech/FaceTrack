@@ -9,6 +9,7 @@ import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
+import javax.swing.JCheckBox;
 import javax.swing.JTextArea;
 
 import org.opencv.core.Core;
@@ -203,8 +204,50 @@ public class Camera extends JFrame {
             }
         });
 
+        JCheckBox eyeCheckBox = new JCheckBox("Yeux");
+        eyeCheckBox.setBounds(10, 400, 80, 25);
+        eyeCheckBox.setForeground(Color.WHITE);
+        eyeCheckBox.setOpaque(false);
+        layeredPane.add(eyeCheckBox, JLayeredPane.PALETTE_LAYER);
+
+        eyeCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                multiDetector.setEyeEnabled(eyeCheckBox.isSelected());
+                addLog("detection yeux: " + (eyeCheckBox.isSelected() ? "ON" : "OFF"));
+            }
+        });
+
+        JCheckBox smileCheckBox = new JCheckBox("Sourire");
+        smileCheckBox.setBounds(90, 400, 90, 25);
+        smileCheckBox.setForeground(Color.WHITE);
+        smileCheckBox.setOpaque(false);
+        layeredPane.add(smileCheckBox, JLayeredPane.PALETTE_LAYER);
+
+        smileCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                multiDetector.setSmileEnabled(smileCheckBox.isSelected());
+                addLog("detection sourire: " + (smileCheckBox.isSelected() ? "ON" : "OFF"));
+            }
+        });
+
+        JCheckBox profileCheckBox = new JCheckBox("Profil");
+        profileCheckBox.setBounds(180, 400, 80, 25);
+        profileCheckBox.setForeground(Color.WHITE);
+        profileCheckBox.setOpaque(false);
+        layeredPane.add(profileCheckBox, JLayeredPane.PALETTE_LAYER);
+
+        profileCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                multiDetector.setProfileEnabled(profileCheckBox.isSelected());
+                addLog("detection profil: " + (profileCheckBox.isSelected() ? "ON" : "OFF"));
+            }
+        });
+
         JLabel logLabel = new JLabel("Logs:");
-        logLabel.setBounds(10, 400, 80, 20);
+        logLabel.setBounds(10, 435, 80, 20);
         logLabel.setForeground(Color.WHITE);
         logLabel.setFont(new Font("Arial", Font.BOLD, 14));
         layeredPane.add(logLabel, JLayeredPane.PALETTE_LAYER);
@@ -215,7 +258,7 @@ public class Camera extends JFrame {
         logArea.setForeground(Color.GREEN);
         logArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
         JScrollPane scrollPane = new JScrollPane(logArea);
-        scrollPane.setBounds(10, 420, 250, 150);
+        scrollPane.setBounds(10, 455, 250, 150);
         layeredPane.add(scrollPane, JLayeredPane.PALETTE_LAYER);
 
         addLog("application demarree");
