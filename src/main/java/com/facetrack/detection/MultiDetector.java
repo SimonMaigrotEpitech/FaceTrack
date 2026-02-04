@@ -67,6 +67,21 @@ public class MultiDetector {
         Rect[] eyesArray;
         Scalar blueColor = new Scalar(255, 0, 0);
         Rect eyeRect;
+
+        if (!eyeEnabled)
+            return;
+        Imgproc.cvtColor(frame, grayFrame, Imgproc.COLOR_BGR2GRAY);
+        for (Rect face : faces) {
+            faceROI = grayFrame.submat(face);
+            eyes = new MatOfRect();
+            eyeClassifier.detectMultiScale(faceROI, eyes, 1.1, 5);
+            eyesArray = eyes.toArray();
+            eyeCount += eyesArray.length;
+            for (Rect eye : eyesArray) {
+                eyeRect = new Rect(face.x + eye.x, face.y + eye.y, eye.width, eye.height);
+                Imgproc.rectangle(frame, eyeRect.tl(), eyeRect.br(), blueColor, 2);
+            }
+        }
     }
 
     public void detectSmiles(Mat frame, Rect[] faces)
@@ -78,6 +93,21 @@ public class MultiDetector {
         Rect[] smilesArray;
         Scalar yellowColor = new Scalar(0, 255, 255);
         Rect smileRect;
+
+        if (!smileEnabled)
+            return;
+        Imgproc.cvtColor(frame, grayFrame, Imgproc.COLOR_BGR2GRAY);
+        for (Rect face : faces) {
+            faceROI = grayFrame.submat(face);
+            smiles = new MatOfRect();
+            smileClassifier.detectMultiScale(faceROI, smiles, 1.8, 20);
+            smilesArray = smiles.toArray();
+            smileCount += smilesArray.length;
+            for (Rect smile : smilesArray) {
+                smileRect = new Rect(face.x + smile.x, face.y + smile.y, smile.width, smile.height);
+                Imgproc.rectangle(frame, smileRect.tl(), smileRect.br(), yellowColor, 2);
+            }
+        }
     }
 
     public int detectProfiles(Mat frame)
@@ -90,6 +120,13 @@ public class MultiDetector {
 
         if (!profileEnabled)
             return 0;
+        Imgproc.cvtColor(frame, grayFrame, Imgproc.COLOR_BGR2GRAY);
+        Imgproc.equalizeHist(grayFrame, grayFrame);
+        profileClassifier.detectMultiScale(grayFrame, profiles, 1.1, 3);
+        profilesArray = profiles.toArray();
+        profileCount = profilesArray.length;
+        for (Rect profile : profilesArray)
+            Imgproc.rectangle(frame, profile.tl(), profile.br(), orangeColor, 2);
         return profileCount;
     }
 }
