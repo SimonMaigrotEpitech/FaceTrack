@@ -22,6 +22,7 @@ import org.opencv.videoio.Videoio;
 import com.facetrack.detection.FaceDetector;
 import com.facetrack.detection.MultiDetector;
 import com.facetrack.recording.VideoRecorder;
+import com.facetrack.monitoring.PresenceMonitor;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -53,7 +54,10 @@ public class Camera extends JFrame {
     private FaceDetector faceDetector;
     private MultiDetector multiDetector;
     private VideoRecorder videoRecorder;
+    private PresenceMonitor presenceMonitor;
     private JLabel recordIndicator;
+    private JLabel alertLabel;
+    private boolean alertLogged = false;
     private JComboBox<String> resolutionCombo;
     private int selectedWidth = 640;
     private int selectedHeight = 480;
@@ -65,6 +69,7 @@ public class Camera extends JFrame {
         faceDetector = new FaceDetector();
         multiDetector = new MultiDetector();
         videoRecorder = new VideoRecorder();
+        presenceMonitor = new PresenceMonitor();
 
         layeredPane = new JLayeredPane();
         layeredPane.setPreferredSize(new Dimension(1920, 1080));
@@ -313,8 +318,36 @@ public class Camera extends JFrame {
             }
         });
 
+        JLabel absenceLabel = new JLabel("Alerte absence: 5s");
+        absenceLabel.setBounds(10, 430, 150, 20);
+        absenceLabel.setForeground(Color.WHITE);
+        absenceLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        layeredPane.add(absenceLabel, JLayeredPane.PALETTE_LAYER);
+
+        JSlider absenceSlider = new JSlider(1, 30, 5);
+        absenceSlider.setBounds(10, 450, 150, 30);
+        layeredPane.add(absenceSlider, JLayeredPane.PALETTE_LAYER);
+
+        absenceSlider.addChangeListener(new javax.swing.event.ChangeListener() {
+            @Override
+            public void stateChanged(javax.swing.event.ChangeEvent e) {
+                int value = absenceSlider.getValue();
+                absenceLabel.setText("Alerte absence: " + value + "s");
+                presenceMonitor.setThresholdSeconds(value);
+            }
+        });
+
+        alertLabel = new JLabel("ABSENCE DETECTEE");
+        alertLabel.setBounds(400, 10, 250, 35);
+        alertLabel.setForeground(Color.RED);
+        alertLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        alertLabel.setOpaque(true);
+        alertLabel.setBackground(new Color(0, 0, 0, 180));
+        alertLabel.setVisible(false);
+        layeredPane.add(alertLabel, JLayeredPane.PALETTE_LAYER);
+
         JLabel logLabel = new JLabel("Logs:");
-        logLabel.setBounds(10, 435, 80, 20);
+        logLabel.setBounds(10, 485, 80, 20);
         logLabel.setForeground(Color.WHITE);
         logLabel.setFont(new Font("Arial", Font.BOLD, 14));
         layeredPane.add(logLabel, JLayeredPane.PALETTE_LAYER);
@@ -325,7 +358,7 @@ public class Camera extends JFrame {
         logArea.setForeground(Color.GREEN);
         logArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
         JScrollPane scrollPane = new JScrollPane(logArea);
-        scrollPane.setBounds(10, 455, 250, 150);
+        scrollPane.setBounds(10, 505, 250, 150);
         layeredPane.add(scrollPane, JLayeredPane.PALETTE_LAYER);
 
         addLog("application demarree");
@@ -383,6 +416,9 @@ public class Camera extends JFrame {
                 if (videoRecorder.isRecording())
                     videoRecorder.writeFrame(frame);
 
+                if (detectionEnabled)
+                    presenceMonitor.update(faceCount);
+
                 int count = faceCount;
                 int currentFps = fps;
                 int width = frame.width();
@@ -391,6 +427,13 @@ public class Camera extends JFrame {
                 int smiles = multiDetector.getSmileCount();
                 int profiles = multiDetector.getProfileCount();
                 boolean recBlink = videoRecorder.isRecording() && (System.currentTimeMillis() / 500) % 2 == 0;
+                boolean showAlert = presenceMonitor.isAlertActive();
+                if (showAlert && !alertLogged) {
+                    addLog("alerte: absence detectee");
+                    alertLogged = true;
+                } else if (!showAlert) {
+                    alertLogged = false;
+                }
                 javax.swing.SwingUtilities.invokeLater(() -> {
                     faceCountLabel.setText("visages: " + count);
                     eyeCountLabel.setText("yeux: " + eyes);
@@ -402,6 +445,7 @@ public class Camera extends JFrame {
                     statusLabel.setForeground(Color.GREEN);
                     if (videoRecorder.isRecording())
                         recordIndicator.setVisible(recBlink);
+                    alertLabel.setVisible(showAlert);
                 });
 
                 MatOfByte buf = new MatOfByte();
