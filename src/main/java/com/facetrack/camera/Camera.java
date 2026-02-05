@@ -23,6 +23,7 @@ import com.facetrack.detection.FaceDetector;
 import com.facetrack.detection.MultiDetector;
 import com.facetrack.recording.VideoRecorder;
 import com.facetrack.monitoring.PresenceMonitor;
+import com.facetrack.statistics.StatisticsManager;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -55,6 +56,7 @@ public class Camera extends JFrame {
     private MultiDetector multiDetector;
     private VideoRecorder videoRecorder;
     private PresenceMonitor presenceMonitor;
+    private StatisticsManager statisticsManager;
     private JLabel recordIndicator;
     private JLabel alertLabel;
     private boolean alertLogged = false;
@@ -70,6 +72,7 @@ public class Camera extends JFrame {
         multiDetector = new MultiDetector();
         videoRecorder = new VideoRecorder();
         presenceMonitor = new PresenceMonitor();
+        statisticsManager = new StatisticsManager();
 
         layeredPane = new JLayeredPane();
         layeredPane.setPreferredSize(new Dimension(1920, 1080));
@@ -337,6 +340,21 @@ public class Camera extends JFrame {
             }
         });
 
+        JButton btnExportCSV = new JButton("Export CSV");
+        btnExportCSV.setBounds(170, 450, 100, 30);
+        layeredPane.add(btnExportCSV, JLayeredPane.PALETTE_LAYER);
+
+        btnExportCSV.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String path = statisticsManager.exportCSV();
+                if (path != null)
+                    addLog("stats exportees: " + path);
+                else
+                    addLog("erreur: export CSV echoue");
+            }
+        });
+
         alertLabel = new JLabel("ABSENCE DETECTEE");
         alertLabel.setBounds(400, 10, 250, 35);
         alertLabel.setForeground(Color.RED);
@@ -416,8 +434,10 @@ public class Camera extends JFrame {
                 if (videoRecorder.isRecording())
                     videoRecorder.writeFrame(frame);
 
-                if (detectionEnabled)
+                if (detectionEnabled) {
                     presenceMonitor.update(faceCount);
+                    statisticsManager.update(faceCount);
+                }
 
                 int count = faceCount;
                 int currentFps = fps;
