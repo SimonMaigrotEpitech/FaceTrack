@@ -21,6 +21,7 @@ import org.opencv.videoio.Videoio;
 
 import com.facetrack.detection.FaceDetector;
 import com.facetrack.detection.MultiDetector;
+import com.facetrack.recording.VideoRecorder;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -51,6 +52,8 @@ public class Camera extends JFrame {
     private boolean detectionEnabled = true;
     private FaceDetector faceDetector;
     private MultiDetector multiDetector;
+    private VideoRecorder videoRecorder;
+    private JLabel recordIndicator;
     private JComboBox<String> resolutionCombo;
     private int selectedWidth = 640;
     private int selectedHeight = 480;
@@ -61,6 +64,7 @@ public class Camera extends JFrame {
     public Camera() {
         faceDetector = new FaceDetector();
         multiDetector = new MultiDetector();
+        videoRecorder = new VideoRecorder();
 
         layeredPane = new JLayeredPane();
         layeredPane.setPreferredSize(new Dimension(1920, 1080));
@@ -144,6 +148,7 @@ public class Camera extends JFrame {
         btnQuit.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                videoRecorder.stopRecording();
                 capture.release();
                 frame.release();
                 System.exit(0);
@@ -164,6 +169,41 @@ public class Camera extends JFrame {
                 } else {
                     btnDetection.setText("Detection: OFF");
                     addLog("ca detecte plus");
+                }
+            }
+        });
+
+        JButton btnRecord = new JButton("Enregistrer");
+        btnRecord.setBounds(150, 200, 120, 30);
+        layeredPane.add(btnRecord, JLayeredPane.PALETTE_LAYER);
+
+        recordIndicator = new JLabel("REC");
+        recordIndicator.setBounds(280, 200, 50, 30);
+        recordIndicator.setForeground(Color.RED);
+        recordIndicator.setFont(new Font("Arial", Font.BOLD, 16));
+        recordIndicator.setOpaque(true);
+        recordIndicator.setBackground(new Color(0, 0, 0, 150));
+        recordIndicator.setVisible(false);
+        layeredPane.add(recordIndicator, JLayeredPane.PALETTE_LAYER);
+
+        btnRecord.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (videoRecorder.isRecording()) {
+                    videoRecorder.stopRecording();
+                    btnRecord.setText("Enregistrer");
+                    recordIndicator.setVisible(false);
+                    addLog("enregistrement arrete: " + videoRecorder.getCurrentFilePath());
+                } else {
+                    int w = (frame != null) ? frame.width() : selectedWidth;
+                    int h = (frame != null) ? frame.height() : selectedHeight;
+                    boolean started = videoRecorder.startRecording(w, h, 20);
+                    if (started) {
+                        btnRecord.setText("Stop");
+                        recordIndicator.setVisible(true);
+                        addLog("enregistrement demarre zebi: " + videoRecorder.getCurrentFilePath());
+                    } else
+                        addLog("erreur: impossible de start l'enregistrement");
                 }
             }
         });
@@ -298,6 +338,7 @@ public class Camera extends JFrame {
             @Override
             public void windowClosing(WindowEvent e) {
                 super.windowClosing(e);
+                videoRecorder.stopRecording();
                 capture.release();
                 frame.release();
                 System.exit(0);
@@ -339,6 +380,9 @@ public class Camera extends JFrame {
                 if (elapsed > 0)
                     fps = (int) (1000 / elapsed);
 
+                if (videoRecorder.isRecording())
+                    videoRecorder.writeFrame(frame);
+
                 int count = faceCount;
                 int currentFps = fps;
                 int width = frame.width();
@@ -346,6 +390,7 @@ public class Camera extends JFrame {
                 int eyes = multiDetector.getEyeCount();
                 int smiles = multiDetector.getSmileCount();
                 int profiles = multiDetector.getProfileCount();
+                boolean recBlink = videoRecorder.isRecording() && (System.currentTimeMillis() / 500) % 2 == 0;
                 javax.swing.SwingUtilities.invokeLater(() -> {
                     faceCountLabel.setText("visages: " + count);
                     eyeCountLabel.setText("yeux: " + eyes);
@@ -355,6 +400,8 @@ public class Camera extends JFrame {
                     resolutionLabel.setText("Resolution: " + width + "x" + height);
                     statusLabel.setText("Camera: active");
                     statusLabel.setForeground(Color.GREEN);
+                    if (videoRecorder.isRecording())
+                        recordIndicator.setVisible(recBlink);
                 });
 
                 MatOfByte buf = new MatOfByte();
